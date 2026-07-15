@@ -30,7 +30,7 @@
         }
 
         .landing-screen.hidden {
-            display: none;
+            display: none !important;
         }
 
         .floating-shapes {
@@ -186,7 +186,7 @@
         }
 
         .game-screen.hidden {
-            display: none;
+            display: none !important;
         }
 
         .game-background {
@@ -431,10 +431,23 @@
             width: 100%;
             height: 100%;
             z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .celebration-screen.visible {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
         }
 
         .celebration-screen.hidden {
-            display: none;
+            display: none !important;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
         }
 
         .celebration-content {
@@ -697,7 +710,7 @@
     </div>
 
     <!-- Game Screen -->
-    <div class="game-screen" id="gameScreen">
+    <div class="game-screen hidden" id="gameScreen">
         <div class="left-panel">
             <div class="progress-dashboard">
                 <div class="progress-item">
@@ -754,7 +767,7 @@
     </div>
 
     <!-- Celebration Screen -->
-    <div class="celebration-screen" id="celebrationScreen">
+    <div class="celebration-screen hidden" id="celebrationScreen">
         <div class="celebration-content">
             <div class="celebration-emoji">🎉</div>
             <h1 class="celebration-title" id="celebrationTitle">Congratulations!</h1>
