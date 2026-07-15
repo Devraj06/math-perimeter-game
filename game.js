@@ -388,6 +388,7 @@ class GameState {
         this.questions = [];
         this.startTime = null;
         this.currentAttempt = 0;
+        this.isGameActive = false;
     }
 
     reset() {
@@ -395,6 +396,7 @@ class GameState {
         this.correctAnswers = 0;
         this.incorrectAnswers = 0;
         this.currentAttempt = 0;
+        this.isGameActive = true;
         this.startTime = Date.now();
     }
 
@@ -415,11 +417,14 @@ class GameState {
     }
 
     isGameComplete() {
-        return this.currentQuestionIndex >= this.questions.length;
+        return this.currentQuestionIndex >= this.questions.length && this.isGameActive;
     }
 
     getCurrentQuestion() {
-        return this.questions[this.currentQuestionIndex];
+        if (this.currentQuestionIndex < this.questions.length) {
+            return this.questions[this.currentQuestionIndex];
+        }
+        return null;
     }
 }
 
@@ -500,12 +505,19 @@ class MathPerimeterGame {
     }
 
     loadQuestion() {
-        if (this.state.isGameComplete()) {
-            this.showCelebration();
+        // Check if game is complete AFTER all questions are answered
+        if (this.state.currentQuestionIndex >= 100 && this.state.isGameActive) {
+            this.endGame();
             return;
         }
 
         const question = this.state.getCurrentQuestion();
+        
+        if (!question) {
+            this.endGame();
+            return;
+        }
+
         this.state.currentAttempt = 0;
 
         // Update UI
@@ -530,9 +542,18 @@ class MathPerimeterGame {
     }
 
     submitAnswer() {
+        // Prevent submission if game is not active
+        if (!this.state.isGameActive) {
+            return;
+        }
+
         const input = document.getElementById('answerInput');
         const answer = parseInt(input.value);
         const question = this.state.getCurrentQuestion();
+
+        if (!question) {
+            return;
+        }
 
         if (isNaN(answer)) {
             this.showFeedback('Please enter a valid number!', 'error');
@@ -550,7 +571,6 @@ class MathPerimeterGame {
 
     handleCorrectAnswer() {
         const input = document.getElementById('answerInput');
-        const feedbackDiv = document.getElementById('feedbackMessage');
 
         this.state.correctAnswers++;
         input.classList.add('success');
@@ -673,6 +693,14 @@ class MathPerimeterGame {
                 easing: 'ease-in-out'
             });
         }, 10);
+    }
+
+    endGame() {
+        // Mark game as inactive
+        this.state.isGameActive = false;
+
+        // Show celebration screen
+        this.showCelebration();
     }
 
     showCelebration() {
