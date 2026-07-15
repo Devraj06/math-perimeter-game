@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda's Bamboo Forest - Perimeter Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', cursive, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* ==================== LANDING SCREEN ==================== */
+        .landing-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .landing-screen.hidden {
+            display: none;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(20px) rotate(10deg);
+            }
+        }
+
+        .shape:nth-child(1) { left: 10%; top: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { left: 20%; top: 70%; animation-delay: 1s; }
+        .shape:nth-child(3) { right: 15%; top: 20%; animation-delay: 2s; }
+        .shape:nth-child(4) { right: 10%; bottom: 15%; animation-delay: 0.5s; }
+        .shape:nth-child(5) { left: 50%; bottom: 20%; animation-delay: 1.5s; }
+
+        .landing-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panda-wave {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: wave 1s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(20deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-20deg); }
+        }
+
+        .landing-title {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .landing-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.3);
+            transform: scale(1.02);
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            animation: bounce 2s infinite;
+        }
+
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .start-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* ==================== MAIN GAME SCREEN ==================== */
+        .game-screen {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-screen.hidden {
+            display: none;
+        }
+
+        .game-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .left-panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-dashboard {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-value {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 20px;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .shape-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .svg-shape {
+            max-width: 100%;
+            max-height: 300px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+
+        .answer-input-group {
+            margin-top: 20px;
+        }
+
+        .answer-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .answer-input.error {
+            border-color: #ff6b6b;
+            animation: shake 0.5s;
+        }
+
+        .answer-input.success {
+            border-color: #51cf66;
+            background-color: #f1fdf4;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .feedback-message {
+            min-height: 40px;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.3s;
+        }
+
+        .feedback-message.success {
+            background-color: #d3f9d8;
+            color: #2f9e44;
+        }
+
+        .feedback-message.error {
+            background-color: #ffe0e0;
+            color: #c92a2a;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ==================== PANDA SECTION ==================== */
+        .panda-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .panda-display {
+            font-size: 150px;
+            animation: blink 3s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.8; }
+        }
+
+        .bamboo-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #51cf66;
+            text-align: center;
+            min-height: 60px;
+            animation: sway 2s ease-in-out infinite;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .bamboo-progress {
+            font-size: 18px;
+            color: white;
+            margin-top: 10px;
+        }
+
+        /* ==================== CELEBRATION SCREEN ==================== */
+        .celebration-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .celebration-screen.hidden {
+            display: none;
+        }
+
+        .celebration-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0ff 100%);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: scaleIn 0.8s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .celebration-emoji {
+            font-size: 100px;
+            animation: bounce 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        .celebration-title {
+            font-size: 42px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .celebration-message {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .celebration-stats {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .play-again-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .play-again-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        @media (max-width: 1024px) {
+            .game-screen {
+                flex-direction: column;
+            }
+
+            .left-panel, .right-panel {
+                flex: none;
+                min-height: auto;
+            }
+
+            .right-panel {
+                background: rgba(255, 255, 255, 0.05);
+                min-height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .landing-card {
+                padding: 30px;
+                margin: 20px;
+            }
+
+            .landing-title {
+                font-size: 32px;
+            }
+
+            .panda-wave {
+                font-size: 80px;
+            }
+
+            .question-card {
+                padding: 20px;
+            }
+
+            .left-panel, .right-panel {
+                padding: 15px;
+            }
+
+            .panda-display {
+                font-size: 100px;
+            }
+
+            .celebration-content {
+                padding: 30px;
+                margin: 20px;
+            }
+
+            .celebration-title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+
+            .landing-card {
+                padding: 20px;
+            }
+
+            .landing-title {
+                font-size: 24px;
+            }
+
+            .panda-wave {
+                font-size: 60px;
+            }
+
+            .form-group input {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .start-button {
+                padding: 15px 30px;
+                font-size: 18px;
+            }
+
+            .question-card {
+                padding: 15px;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .progress-dashboard {
+                padding: 15px;
+            }
+
+            .progress-item {
+                font-size: 14px;
+            }
+
+            .svg-shape {
+                max-height: 200px;
+            }
+
+            .panda-display {
+                font-size: 80px;
+            }
+
+            .bamboo-display {
+                font-size: 18px;
+            }
+
+            .celebration-title {
+                font-size: 22px;
+            }
+
+            .celebration-message {
+                font-size: 14px;
+            }
+
+            .play-again-button {
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+        }
+
+        /* ==================== UTILITY ==================== */
+        .hidden {
+            display: none !important;
+        }
+
+        .floating-cloud {
+            position: absolute;
+            opacity: 0.5;
+            animation: float-cloud 15s linear infinite;
+        }
+
+        @keyframes float-cloud {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100vw); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Screen -->
+    <div class="landing-screen" id="landingScreen">
+        <div class="floating-shapes" id="floatingShapes"></div>
+        <div class="landing-card">
+            <div class="panda-wave">🐼</div>
+            <h1 class="landing-title">Panda's Bamboo Forest</h1>
+            <p class="landing-subtitle">A Perimeter Adventure!</p>
+            
+            <form id="landingForm">
+                <div class="form-group">
+                    <label for="studentName">What's your name?</label>
+                    <input 
+                        type="text" 
+                        id="studentName" 
+                        placeholder="Enter your name" 
+                        maxlength="30"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentAge">How old are you?</label>
+                    <input 
+                        type="number" 
+                        id="studentAge" 
+                        placeholder="Enter your age" 
+                        min="5" 
+                        max="12"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="start-button" id="startButton">
+                    🚀 Start Adventure!
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="game-screen" id="gameScreen">
+        <div class="left-panel">
+            <div class="progress-dashboard">
+                <div class="progress-item">
+                    <span>✅ Completed</span>
+                    <span class="progress-value" id="questionsCompleted">0</span>
+                </div>
+                <div class="progress-item">
+                    <span>✅ Correct</span>
+                    <span class="progress-value" id="correctAnswers">0</span>
+                </div>
+                <div class="progress-item">
+                    <span>❌ Incorrect</span>
+                    <span class="progress-value" id="incorrectAnswers">0</span>
+                </div>
+                <div class="progress-item">
+                    <span>⭐ Accuracy</span>
+                    <span class="progress-value" id="accuracyPercentage">0%</span>
+                </div>
+                <div class="progress-item">
+                    <span>📍 Question</span>
+                    <span class="progress-value" id="questionNumber">1 / 100</span>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-number" id="questionLabel">Question 1 of 100</div>
+                <div class="question-text" id="questionText">Find the perimeter of the shape</div>
+                
+                <div class="shape-container" id="shapeContainer">
+                    <!-- SVG shape will be generated here -->
+                </div>
+
+                <div class="answer-input-group">
+                    <label class="answer-label">Your Answer (units):</label>
+                    <input 
+                        type="number" 
+                        id="answerInput" 
+                        placeholder="Enter the perimeter" 
+                        class="answer-input"
+                    >
+                    <button class="submit-button" id="submitButton">Submit Answer</button>
+                    <div class="feedback-message" id="feedbackMessage"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panda-section">
+                <div class="panda-display">🐼</div>
+                <div class="bamboo-display" id="bambooDisplay">🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿</div>
+                <div class="bamboo-progress" id="bambooProgress">Bamboo eaten: 0%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Screen -->
+    <div class="celebration-screen" id="celebrationScreen">
+        <div class="celebration-content">
+            <div class="celebration-emoji">🎉</div>
+            <h1 class="celebration-title" id="celebrationTitle">Congratulations!</h1>
+            <p class="celebration-message" id="celebrationMessage">
+                You completed all 100 perimeter challenges!
+            </p>
+            
+            <div class="celebration-stats">
+                <div class="stat-row">
+                    <span>Correct Answers:</span>
+                    <span id="finalCorrect">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Wrong Answers:</span>
+                    <span id="finalWrong">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Accuracy:</span>
+                    <span id="finalAccuracy">0%</span>
+                </div>
+                <div class="stat-row">
+                    <span>Time Taken:</span>
+                    <span id="finalTime">0:00</span>
+                </div>
+            </div>
+
+            <button class="play-again-button" id="playAgainButton">
+                🔄 Play Again
+            </button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
